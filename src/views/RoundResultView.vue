@@ -48,7 +48,7 @@
 
     <div class="rr-actions anim-fadeInUp delay-5">
       <button class="btn btn--primary btn--lg" @click="next">
-        {{ isLast || victory ? 'CLASSEMENT FINAL' : 'MANCHE SUIVANTE' }}
+        {{ shouldEnd ? 'VOIR LE CLASSEMENT FINAL' : 'MANCHE SUIVANTE' }}
       </button>
       <button class="btn btn--ghost btn--sm" style="width:auto;align-self:center" @click="game.goToFinal()">
         Terminer la partie
@@ -71,20 +71,21 @@ onMounted(() => {
   if (last) roundPts.value = last.points || {}
 })
 
-const victory   = computed(() => game.checkVictory())
-const isLast    = computed(() => game.totalRounds > 0 && game.round >= game.totalRounds)
+const victory    = computed(() => game.checkVictory())
+const isLast     = computed(() => game.totalRounds > 0 && game.round >= game.totalRounds)
+const shouldEnd  = computed(() => !!victory.value || isLast.value)
 const aliveCount = computed(() => game.players.filter(p => p.alive).length)
 
 const victoryTitle = computed(() => ({
-  citizen:    '🟢 CITOYENS GAGNENT !',
+  citizen:    'CITOYENS GAGNENT !',
   undercover: 'UNDERCOVER GAGNENT !',
-  mrwhite:    '⚪ MR. WHITE GAGNE !',
+  mrwhite:    'MR. WHITE GAGNE !',
 }[victory.value?.winner] || ''))
 
 const victoryDesc = computed(() => ({
-  eliminated_all: 'Tous les infiltrés éliminés !',
-  dominated: 'Les Undercover contrôlent le vote !',
-  guess:     'Mr. White a trouvé le mot !',
+  eliminated_all: 'Tous les infiltrés ont été éliminés !',
+  dominated:      'Les Undercover contrôlent le vote !',
+  guess:          'Mr. White a trouvé le mot !',
 }[victory.value?.reason] || ''))
 
 const ptEntries = computed(() =>
@@ -101,7 +102,7 @@ function roleLabel(r) {
 }
 
 function next() {
-  if (victory.value || isLast.value) game.goToFinal()
+  if (shouldEnd.value) game.goToFinal()
   else game.nextRound()
 }
 </script>

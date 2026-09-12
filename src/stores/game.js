@@ -231,7 +231,26 @@ export const useGameStore = defineStore('game', {
 
     startCluePhase() {
       const alive = this.players.filter(p => p.alive)
-      this.clueOrder = shuffle(alive.map(p => p.id))
+      const order = shuffle(alive.map(p => p.id))
+
+      // Mr. White ne doit jamais être le premier à donner son indice
+      // Si un Mr. White est en position 0, on l'échange avec quelqu'un d'autre
+      if (alive.length > 1 && order.length > 0) {
+        const firstPlayer = alive.find(p => p.id === order[0])
+        if (firstPlayer && firstPlayer.role === 'mrwhite') {
+          // Chercher un non-Mr. White ailleurs dans la liste
+          const swapIdx = order.findIndex((id, i) => {
+            if (i === 0) return false
+            const p = alive.find(pl => pl.id === id)
+            return p && p.role !== 'mrwhite'
+          })
+          if (swapIdx !== -1) {
+            [order[0], order[swapIdx]] = [order[swapIdx], order[0]]
+          }
+        }
+      }
+
+      this.clueOrder = order
       this.clueIndex = 0
       this.phase = 'clue'
       this.save()
@@ -435,7 +454,15 @@ export const useGameStore = defineStore('game', {
         points: { ...roundPoints },
       })
 
-      this.phase = 'roundResult'
+      // Vérifier immédiatement si la partie est terminée
+      const victory = this.checkVictory()
+      if (victory) {
+        this.phase = 'roundResult' // affiche les points puis → final automatiquement
+      } else if (this.totalRounds > 0 && this.round >= this.totalRounds) {
+        this.phase = 'roundResult' // dernière manche
+      } else {
+        this.phase = 'roundResult'
+      }
       this.save()
       return roundPoints
     },

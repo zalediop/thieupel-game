@@ -14,22 +14,11 @@
         <div class="r-role" :class="'r-role--' + eliminated?.role">
           {{ roleName }}
         </div>
-      </div>
-
-      <!-- Phase 3 : mots -->
-      <div v-if="phase >= 3" class="r-words anim-fadeInUp delay-3">
-        <div class="word-card word-card--citizen">
-          <div class="wc-label">Mot des citoyens</div>
-          <div class="wc-word">{{ game.citizenWord }}</div>
-        </div>
-        <div class="word-card word-card--under">
-          <div class="wc-label">Mot Undercover</div>
-          <div class="wc-word">{{ game.undercoverWord }}</div>
-        </div>
+        <p class="r-words-note">Les mots seront révélés à la fin de la partie.</p>
       </div>
 
       <!-- Actions -->
-      <div v-if="phase >= 3" class="r-actions anim-fadeInUp delay-5">
+      <div v-if="phase >= 2" class="r-actions anim-fadeInUp delay-4">
         <button
           v-if="eliminated?.role === 'mrwhite'"
           class="btn btn--secondary btn--lg"
@@ -44,7 +33,7 @@
     </div>
 
     <!-- Bouton avancement manuel -->
-    <button v-if="phase < 3" class="btn btn--ghost advance-btn" @click="phase++">
+    <button v-if="phase < 2" class="btn btn--ghost advance-btn" @click="phase++">
       Révéler →
     </button>
   </div>
@@ -68,7 +57,6 @@ const roleName = computed(() => ({
 onMounted(() => {
   setTimeout(() => { phase.value = 1 }, 200)
   setTimeout(() => { phase.value = 2 }, 1600)
-  setTimeout(() => { phase.value = 3 }, 3200)
 })
 
 function continueGame() {
@@ -119,32 +107,13 @@ function continueGame() {
 .r-role--undercover { background: var(--white-ghost); color: var(--white); border: 2px solid var(--white-dim); }
 .r-role--mrwhite    { background: var(--white-ghost); color: var(--white-muted); border: 2px solid var(--white-dim); }
 
-.r-words { display: flex; flex-direction: column; gap: 0.6rem; width: 100%; }
-
-.word-card {
-  padding: 1rem 1.25rem; border-radius: var(--radius); text-align: center;
+.r-words-note {
+  font-size: 0.8rem;
+  color: var(--white-dim);
+  font-style: italic;
+  margin-top: 0.75rem;
+  text-align: center;
 }
-.word-card--citizen {
-  background: var(--green-dim); border: 2px solid var(--green);
-}
-.word-card--under {
-  background: var(--white-ghost); border: 2px solid var(--white-dim);
-}
-
-.wc-label {
-  font-size: 0.7rem; font-weight: 800;
-  letter-spacing: 1.5px; text-transform: uppercase;
-  opacity: 0.6; margin-bottom: 0.3rem;
-}
-
-.wc-word {
-  font-family: 'Space Grotesk', sans-serif;
-  font-size: 1.5rem; font-weight: 700;
-  letter-spacing: 2px; text-transform: uppercase;
-}
-
-.word-card--citizen .wc-word { color: var(--green); }
-.word-card--under   .wc-word { color: var(--white); }
 
 .r-actions { width: 100%; display: flex; flex-direction: column; gap: 0.75rem; }
 

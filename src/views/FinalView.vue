@@ -12,42 +12,23 @@
       <ScoreBoard :entries="game.sortedScores" />
     </div>
 
-    <!-- Titres -->
+    <div class="spacer" />
+
+    <!-- Mots de la partie -->
     <div class="anim-fadeInUp delay-2">
-      <div class="section-title">Titres & récompenses</div>
-      <div class="titles-list">
-        <div v-for="t in titles" :key="t.label" class="title-row">
-          <div class="title-ico">{{ t.emoji }}</div>
-          <div>
-            <div class="title-lbl">{{ t.label }}</div>
-            <div class="title-win">{{ t.winner || '—' }}</div>
+      <div class="section-title">Les mots de la partie 🔓</div>
+      <div class="words-history">
+        <div v-for="(r, i) in game.roundHistory" :key="i" class="words-round">
+          <div class="words-round-label">Manche {{ r.round }}</div>
+          <div class="words-simple">
+            <div class="ws-row"><span class="ws-label">Citoyen :</span> <span class="ws-citizen">{{ r.citizenWord }}</span></div>
+            <div class="ws-row"><span class="ws-label">Undercover :</span> <span class="ws-under">{{ r.undercoverWord }}</span></div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- Stats -->
-    <div class="anim-fadeInUp delay-3">
-      <div class="section-title">Statistiques</div>
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-val">{{ game.round }}</div>
-          <div class="stat-lbl">Manches</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-val">{{ totalElim }}</div>
-          <div class="stat-lbl">Éliminations</div>
-        </div>
-        <div class="stat-card" style="grid-column: span 2">
-          <div class="stat-val" style="font-size:1.2rem">{{ topScorer?.name || '—' }}</div>
-          <div class="stat-lbl">Meilleur score — {{ topScorer?.totalScore || 0 }} pts</div>
-        </div>
-      </div>
-    </div>
-
-    <div class="spacer" />
-
-    <div class="final-actions anim-fadeInUp delay-5">
+    <div class="final-actions anim-fadeInUp delay-3">
       <button class="btn btn--primary btn--lg" @click="newGame">NOUVELLE PARTIE</button>
       <button class="btn btn--secondary" @click="replay">Rejouer avec les mêmes joueurs</button>
     </div>
@@ -55,23 +36,10 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
 import ScoreBoard from '../components/ScoreBoard.vue'
 import { useGameStore } from '../stores/game.js'
 
 const game = useGameStore()
-
-const ct = computed(() => game.computeTitles())
-
-const titles = computed(() => [
-  { emoji: '🎖', label: 'Meilleur citoyen',    winner: ct.value.bestCitizen },
-  { emoji: '🕵', label: 'Meilleur Undercover', winner: ct.value.bestUndercover },
-  { emoji: '🎭', label: 'Meilleur bluffeur',   winner: ct.value.bestBluffer },
-  { emoji: '🔍', label: 'Meilleur détective',  winner: ct.value.bestDetective },
-])
-
-const totalElim  = computed(() => game.roundHistory.filter(r => r.eliminatedId !== null).length)
-const topScorer  = computed(() => game.sortedScores[0] || null)
 
 function newGame() {
   game.resetGame()
@@ -93,41 +61,32 @@ function replay() {
 <style scoped>
 .final-header { text-align: center; }
 
-.titles-list { display: flex; flex-direction: column; gap: 0.5rem; }
-
-.title-row {
-  display: flex; align-items: center; gap: 1rem;
-  padding: 0.85rem 1rem;
-  background: var(--dark-mid);
-  border: 1px solid var(--white-dim);
-  border-radius: var(--radius);
-}
-
-.title-ico  { font-size: 1.6rem; flex-shrink: 0; }
-.title-lbl  { font-size: 0.72rem; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: var(--white-muted); }
-.title-win  { font-size: 1.05rem; font-weight: 800; }
-
-.stats-grid {
-  display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem;
-}
-
-.stat-card {
-  background: var(--dark-mid);
-  border: 1px solid var(--white-dim);
-  border-radius: var(--radius);
-  padding: 1rem; text-align: center;
-}
-
-.stat-val {
-  font-size: 1.6rem; font-weight: 900;
-  color: var(--green); word-break: break-word;
-}
-
-.stat-lbl {
-  font-size: 0.72rem; font-weight: 700;
-  color: var(--white-muted); text-transform: uppercase;
-  letter-spacing: 0.5px; margin-top: 0.2rem;
-}
-
 .final-actions { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.words-history { display: flex; flex-direction: column; gap: 0.75rem; }
+
+.words-round {
+  padding: 0.75rem 1rem;
+  background: var(--dark-mid);
+  border: 1px solid var(--white-dim);
+  border-radius: var(--radius);
+}
+
+.words-round-label {
+  font-size: 0.68rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 1.5px;
+  color: var(--white-muted); margin-bottom: 0.4rem;
+}
+
+.words-simple { display: flex; flex-direction: column; gap: 0.2rem; }
+
+.ws-row {
+  font-family: 'Space Grotesk', sans-serif;
+  font-size: 0.95rem; font-weight: 700;
+  letter-spacing: 1px; text-transform: uppercase;
+}
+
+.ws-label   { color: var(--white-muted); font-weight: 600; }
+.ws-citizen { color: var(--green); }
+.ws-under   { color: var(--white); }
 </style>
